@@ -150,7 +150,7 @@ function pick(k){
 }
 $("next").onclick=()=>{ if(++i<Q.length){render();$("opts").firstChild.focus()}else finish() };
 const BK="spaceQuizBest";
-function getBest(){try{const v=parseInt(localStorage.getItem(BK),10);return v>=0&&v<=Q.length?v:null}catch(e){return null}}
+function getBest(){try{const r=localStorage.getItem(BK);if(r===null||!r.trim())return null;const v=Number(r);return Number.isInteger(v)&&v>=0&&v<=Q.length?v:null}catch(e){return null}}
 function setBest(v){try{localStorage.setItem(BK,v)}catch(e){}}
 function finish(){
   $("quiz").hidden=true;$("result").hidden=false;
