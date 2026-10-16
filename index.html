@@ -156,9 +156,9 @@ function finish(){
   $("quiz").hidden=true;$("result").hidden=false;
   const prev=getBest(),beat=score>0&&(prev===null||score>prev);
   if(beat)setBest(score);
-  const best=beat?score:prev;
+  const best=beat?score:prev??0;
   $("best").textContent="";
-  if(best!==null||beat)setTimeout(()=>{$("best").textContent=`Best: ${best} / ${Q.length}`;if(beat){const b=document.createElement("b");b.textContent=" 🎉 New best!";$("best").appendChild(b)}},50);
+  setTimeout(()=>{$("best").textContent=`Best: ${best} / ${Q.length}`;if(beat){const b=document.createElement("b");b.textContent=" 🎉 New best!";$("best").appendChild(b)}},50);
   const [e,m]=score===10?["🏆","Flawless! Mission commander material."]:score>=8?["🚀","Stellar! You're ready for launch."]:score>=5?["🌍","Solid orbit. A bit more training and you'll fly."]:["🛰️","Houston, we have a problem — try again!"];
   $("emoji").textContent=e;$("final").textContent=`${score} / ${Q.length}`;$("msg").textContent=m;
   $("again").focus();
