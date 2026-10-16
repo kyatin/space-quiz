@@ -58,6 +58,8 @@ h1{font-size:20px;margin:0 0 16px;text-align:center}
 @keyframes bounce{to{transform:translateY(-8px) scale(1.08)}}
 .big{font-size:34px;font-weight:700;margin:6px 0}
 .result p{color:var(--muted);margin:0 0 18px}
+.result p.best{margin:-8px 0 18px;font:600 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.best b{color:var(--text)}
 /* Mission-control styling for the quiz panel */
 #quiz{
   position:relative;
@@ -102,6 +104,7 @@ h1{font-size:20px;margin:0 0 16px;text-align:center}
     <div class="emoji" id="emoji"></div>
     <div class="big" id="final"></div>
     <p id="msg"></p>
+    <p class="best" id="best" role="status"></p>
     <button class="next show" id="again">Play again</button>
   </div>
 </main>
@@ -146,8 +149,16 @@ function pick(k){
   $("next").focus();
 }
 $("next").onclick=()=>{ if(++i<Q.length){render();$("opts").firstChild.focus()}else finish() };
+const BK="spaceQuizBest";
+function getBest(){try{const r=localStorage.getItem(BK);if(r===null||!r.trim())return null;const v=Number(r);return Number.isInteger(v)&&v>=0&&v<=Q.length?v:null}catch(e){return null}}
+function setBest(v){try{localStorage.setItem(BK,v)}catch(e){}}
 function finish(){
   $("quiz").hidden=true;$("result").hidden=false;
+  const prev=getBest(),beat=score>0&&(prev===null||score>prev);
+  if(beat)setBest(score);
+  const best=beat?score:prev??0;
+  $("best").textContent="";
+  setTimeout(()=>{$("best").textContent=`Best: ${best} / ${Q.length}`;if(beat){const b=document.createElement("b");b.textContent=" 🎉 New best!";$("best").appendChild(b)}},50);
   const [e,m]=score===10?["🏆","Flawless! Mission commander material."]:score>=8?["🚀","Stellar! You're ready for launch."]:score>=5?["🌍","Solid orbit. A bit more training and you'll fly."]:["🛰️","Houston, we have a problem — try again!"];
   $("emoji").textContent=e;$("final").textContent=`${score} / ${Q.length}`;$("msg").textContent=m;
   $("again").focus();
