@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Space Exploration Quiz</title>
+<style>
+:root{
+  --bg:#f3f5fb;--card:#fff;--text:#1b2033;--muted:#667089;--border:#dde2ef;
+  --grid:rgba(91,91,240,.07);--accent:#5b5bf0;--accent-soft:#ececff;--good:#1fa95b;--good-bg:#dcf7e7;
+  --bad:#e5484d;--bad-bg:#fde4e5;--shadow:0 10px 30px rgba(30,40,90,.12);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1020;--card:#151b30;--text:#e9ecf7;--muted:#97a0bd;--border:#2a3354;
+    --grid:rgba(140,140,255,.08);--accent:#8c8cff;--accent-soft:#232a4d;--good:#3ddc84;--good-bg:#12351f;
+    --bad:#ff6b70;--bad-bg:#3a1618;--shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
+  padding:32px 16px;background:var(--bg);color:var(--text);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+main{width:100%;max-width:440px}
+h1{font-size:20px;margin:0 0 16px;text-align:center}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:8px}
+.top b{color:var(--text)}
+.bar{height:8px;background:var(--accent-soft);border-radius:99px;overflow:hidden;margin-bottom:20px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5b5bf0,#c04df0,#ff7a59);border-radius:99px;transition:width .4s ease}
+.q{font-size:16px;font-weight:600;margin:0 0 16px}
+.opts{display:grid;gap:10px}
+.opt{
+  text-align:left;font:inherit;color:inherit;background:var(--card);
+  border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;
+  transition:transform .12s,border-color .12s,background .2s;
+}
+.opt:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px)}
+.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opt:disabled{cursor:default}
+.opt.correct{background:var(--good-bg);border-color:var(--good);animation:pop .45s}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);animation:shake .45s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.04);box-shadow:0 0 0 6px color-mix(in srgb,var(--good) 30%,transparent)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.fb{min-height:22px;margin:14px 0 0;font-size:14px;font-weight:600}
+.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+.next{
+  margin-top:14px;width:100%;font:inherit;font-weight:600;color:#fff;background:var(--accent);
+  border:0;border-radius:10px;padding:11px;cursor:pointer;visibility:hidden;
+}
+@media (prefers-color-scheme:dark){.next{color:#0b1020}}
+.next.show{visibility:visible;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+.result{text-align:center}
+.emoji{font-size:64px;animation:bounce 1s infinite alternate}
+@keyframes bounce{to{transform:translateY(-8px) scale(1.08)}}
+.big{font-size:34px;font-weight:700;margin:6px 0}
+.result p{color:var(--muted);margin:0 0 18px}
+/* Mission-control styling for the quiz panel */
+#quiz{
+  position:relative;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;background-color:var(--card);
+  border-top:3px solid var(--accent);
+}
+#quiz::before,#quiz::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--accent);pointer-events:none}
+#quiz::before{top:8px;left:8px;border-right:0;border-bottom:0}
+#quiz::after{bottom:8px;right:8px;border-left:0;border-top:0}
+.hud{display:flex;align-items:center;gap:8px;margin-bottom:12px;font:600 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.led{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.35}}
+.top{font:600 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase}
+.bar{height:12px;border-radius:3px;border:1px solid var(--border);background:var(--accent-soft);padding:2px}
+.bar i{border-radius:1px;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 14px,transparent 14px 17px);
+  mask:repeating-linear-gradient(90deg,#000 0 14px,transparent 14px 17px)}
+.opts{counter-reset:k}
+.opt{counter-increment:k;display:flex;gap:12px;align-items:center;border-radius:6px}
+.opt::before{content:counter(k,upper-alpha);flex:none;width:24px;height:24px;display:grid;place-items:center;border:1.5px solid var(--accent);border-radius:4px;color:var(--accent);font:700 12px ui-monospace,Menlo,Consolas,monospace}
+.opt.correct::before{border-color:var(--good);color:var(--good)}
+.opt.wrong::before{border-color:var(--bad);color:var(--bad)}
+.q{border-left:3px solid var(--accent);padding-left:12px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>🚀 Space Exploration Quiz</h1>
+  <div class="card" id="quiz">
+    <div class="hud" aria-hidden="true"><span class="led"></span>Mission control · Live</div>
+    <div class="top"><span id="count">Question 1 of 10</span><span>Score: <b id="score">0</b></span></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="10" id="barwrap"><i id="bar"></i></div>
+    <p class="q" id="q"></p>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <button class="next" id="next">Next</button>
+  </div>
+  <div class="card result" id="result" hidden>
+    <div class="emoji" id="emoji"></div>
+    <div class="big" id="final"></div>
+    <p id="msg"></p>
+    <button class="next show" id="again">Play again</button>
+  </div>
+</main>
+<script>
+const Q=[
+["Who was the first human in space?",["Neil Armstrong","Yuri Gagarin","Alan Shepard","Buzz Aldrin"],1],
+["In what year did Apollo 11 land on the Moon?",["1965","1969","1972","1975"],1],
+["Which planet has the Great Red Spot?",["Mars","Saturn","Jupiter","Neptune"],2],
+["What was the first artificial satellite?",["Sputnik 1","Explorer 1","Vostok 1","Telstar"],0],
+["Which rover landed on Mars in February 2021?",["Curiosity","Opportunity","Perseverance","Sojourner"],2],
+["Which telescope launched in December 2021?",["Hubble","James Webb","Kepler","Spitzer"],1],
+["How many people have walked on the Moon?",["6","12","8","24"],1],
+["Which planet is known for its prominent rings?",["Saturn","Venus","Mercury","Mars"],0],
+["Which agency operates the International Space Station with NASA, Roscosmos, ESA, JAXA and CSA?",["It is run by NASA alone","Five space agencies","The UN","SpaceX"],1],
+["Which probe, launched in 1977, is the most distant human-made object?",["Pioneer 10","Cassini","Voyager 1","New Horizons"],2]
+];
+const $=id=>document.getElementById(id);
+let i=0,score=0,locked=false;
+function render(){
+  const [q,o]=Q[i];locked=false;
+  $("count").textContent=`Question ${i+1} of ${Q.length}`;
+  $("bar").style.width=(i/Q.length*100)+"%";
+  $("barwrap").setAttribute("aria-valuenow",i);
+  $("q").textContent=q;$("fb").textContent="";$("fb").className="fb";
+  $("next").classList.remove("show");
+  $("next").textContent=i===Q.length-1?"See results":"Next";
+  $("opts").innerHTML="";
+  o.forEach((t,k)=>{
+    const b=document.createElement("button");b.className="opt";b.textContent=t;
+    b.onclick=()=>pick(k);$("opts").appendChild(b);
+  });
+}
+function pick(k){
+  if(locked)return;locked=true;
+  const a=Q[i][2],btns=[...$("opts").children];
+  btns.forEach(b=>b.disabled=true);
+  const fb=$("fb");
+  if(k===a){score++;$("score").textContent=score;btns[k].classList.add("correct");fb.textContent="✅ Correct! Nice work.";fb.classList.add("good")}
+  else{btns[k].classList.add("wrong");btns[a].classList.add("correct");fb.textContent="❌ Not quite — the right answer is highlighted.";fb.classList.add("bad")}
+  $("bar").style.width=((i+1)/Q.length*100)+"%";
+  $("next").classList.add("show");
+  $("next").focus();
+}
+$("next").onclick=()=>{ if(++i<Q.length){render();$("opts").firstChild.focus()}else finish() };
+function finish(){
+  $("quiz").hidden=true;$("result").hidden=false;
+  const [e,m]=score===10?["🏆","Flawless! Mission commander material."]:score>=8?["🚀","Stellar! You're ready for launch."]:score>=5?["🌍","Solid orbit. A bit more training and you'll fly."]:["🛰️","Houston, we have a problem — try again!"];
+  $("emoji").textContent=e;$("final").textContent=`${score} / ${Q.length}`;$("msg").textContent=m;
+  $("again").focus();
+}
+$("again").onclick=()=>{i=0;score=0;$("score").textContent=0;$("result").hidden=true;$("quiz").hidden=false;render();$("opts").firstChild.focus()};
+render();
+</script>
+</body>
+</html>
